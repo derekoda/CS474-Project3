@@ -10,9 +10,14 @@
  * 
  */
 
+
+//#define _REENTRANT
 #include <pthread.h>
 #include <stdio.h>
 #include <sys/types.h>
+//#include <sys/ipc.h>
+//#include <sys/shm.h>
+//#include <sys/wait.h>
 #include <fcntl.h>
 #include <semaphore.h>
 #include <stdlib.h>
@@ -20,18 +25,8 @@
 #include <stdbool.h>
 #include <time.h>
 #include <math.h>
-#include <string.h>
-#include <limits.h>
 
 pthread_mutex_t mutexBuffer;
-int part = 0;
-float total_sum = 0;
-
-// 1d array for row sums
-float row_sums[INT_MAX];
-
-// 1d array for thread timings
-float thread_time[INT_MAX];
 
 // data to be passes with each thread 
 // and to store results
@@ -90,18 +85,16 @@ void* rowSum(void* args)
     float *mat = tdata->mat;
     float res = tdata->result;
 
-    int thread_part = part++;
-
     //printf("rstart = %d\n cstart = %d\n r = %d\n c = %d\n",rstart,cstart,r,c);
     for (int b = rstart; b < rstart+r; b++)
     {
         for(int a = cstart; a < cstart+c; a++)
         {
             res = res + mat[a];
-            //printf("%f\n%f\n", mat[a],res);
-            row_sums[thread_part] += mat[a];
+            printf("%f\n%f\n", mat[a],res);
         }// end for
     }//end for
+
 }// end rowSum
 
 int main(int argc, char *argv[]) {
@@ -119,9 +112,8 @@ int main(int argc, char *argv[]) {
     // V is the value every element in the array should be set to, default is random float
     // between 0 and 100
     srand(time(NULL));
-    // float V = ((float)rand()/RAND_MAX)*(float)(100.0);
+    float V = ((float)rand()/RAND_MAX)*(float)(100.0);
     // VFlag is a flag to determine if the user has set the value of V
-    float V;
     int VFlag = 0;
 
     while(i < argc) {
@@ -147,21 +139,23 @@ int main(int argc, char *argv[]) {
         C = R;
         R = temp;
     }
-    //printf("%d\n", C);
-    //printf("%d\n", R);
+    printf("%d\n", C);
+    printf("%d\n", R);
     // 2d array for computations
     float matrix[N][N];
+
+    // 1d array for row sums
+    float row_sums[R];
+
+    // 1d array for thread timings
+    float thread_time[T];
 
     // initialize matrix
     for(int i = 0; i < N; i++)
     {
         for(int j = 0; j < N; j++)
         {
-            if(VFlag == 0)
-                matrix[i][j] = ((float)rand()/RAND_MAX)*(float)(100.0);
-            else
-                matrix[i][j] = V;
-            
+            matrix[i][j] = V;
             //printf("%f\n", V);
             //printf("%f\n\n", matrix[i][j]);
         }// end for
@@ -202,22 +196,6 @@ int main(int argc, char *argv[]) {
 		}
 	}// end for joining threads
 
-    // add the row sums
-    for(int i = 0; i < T; i++)
-    {
-        total_sum =+ row_sums[i];
-    }// end for
-    
-    // print the total sum
-    printf("Total sum is: %f\n", total_sum);
-    /*
-    // print the thread timings
-    for(int i = 0; i < T; i++)
-    {
-        printf("%f ", thread_time[i]);
-    }// end for
-    printf("\n");
-    */
 
 	// destroy threads and semaphores
 	pthread_mutex_destroy(&mutexBuffer);
