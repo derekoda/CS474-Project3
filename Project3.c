@@ -25,6 +25,8 @@
 #include <stdbool.h>
 #include <time.h>
 #include <math.h>
+#include <limits.h>
+#include <float.h>
 
 pthread_mutex_t mutexBuffer;
 
@@ -91,10 +93,9 @@ void* rowSum(void* args)
         for(int a = cstart; a < cstart+c; a++)
         {
             res = res + mat[a];
-            printf("%f\n%f\n", mat[a],res);
         }// end for
     }//end for
-
+    printf("\n%f\n", res);
 }// end rowSum
 
 int main(int argc, char *argv[]) {
@@ -139,13 +140,16 @@ int main(int argc, char *argv[]) {
         C = R;
         R = temp;
     }
+    printf("%d\n", N);
     printf("%d\n", C);
     printf("%d\n", R);
+    printf("%d\n", DBL_MAX);
+
     // 2d array for computations
     float matrix[N][N];
 
     // 1d array for row sums
-    float row_sums[R];
+    float row_sums[N];
 
     // 1d array for thread timings
     float thread_time[T];
@@ -182,7 +186,7 @@ int main(int argc, char *argv[]) {
 		// thread is not init
 		if(pthread_create(&th[t], NULL, &rowSum, (void*)&tdat) != 0)
 		{
-			perror("error creating producer thread");
+			perror("error creating producer thread\n");
 		}
 	}// end for creating threads
 
@@ -192,7 +196,7 @@ int main(int argc, char *argv[]) {
 		// threads were not joined
 		if(pthread_join(th[i], NULL) != 0)
 		{
-			perror("error joining threads");
+			perror("error joining threads\n");
 		}
 	}// end for joining threads
 
