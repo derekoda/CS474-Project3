@@ -28,6 +28,10 @@
 #include <limits.h>
 #include <float.h>
 
+#define ROWS 4000
+#define COLS 4000
+float matrix[ROWS][COLS];
+
 pthread_mutex_t mutexBuffer;
 
 // data to be passes with each thread 
@@ -144,16 +148,16 @@ int main(int argc, char *argv[]) {
     printf("%d\n", C);
     printf("%d\n", R);
     printf("%d\n", DBL_MAX);
-
+    printf("here\n");
     // 2d array for computations
-    float matrix[N][N];
-
+    //float matrix[N][N];
+    printf("here\n");
     // 1d array for row sums
     float row_sums[N];
 
     // 1d array for thread timings
     float thread_time[T];
-
+    printf("here\n");
     // initialize matrix
     for(int i = 0; i < N; i++)
     {
@@ -168,7 +172,7 @@ int main(int argc, char *argv[]) {
     // threads
 	pthread_t th[T+1];
 	pthread_mutex_init(&mutexBuffer, NULL);
-
+    printf("here\n");
 	// create threads
 	for(int t = 1; t <= T; t++)
 	{
