@@ -10,14 +10,10 @@
  * 
  */
 
-
-//#define _REENTRANT
 #include <pthread.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <sys/types.h>
-//#include <sys/ipc.h>
-//#include <sys/shm.h>
-//#include <sys/wait.h>
 #include <fcntl.h>
 #include <semaphore.h>
 #include <stdlib.h>
@@ -27,11 +23,25 @@
 #include <math.h>
 #include <limits.h>
 #include <float.h>
+#include <string.h>
 
+#define BILLION 1000000000L
+#define clock_t clock(void);
 #define ROWS 4000
 #define COLS 4000
 float matrix[ROWS][COLS];
 
+// used for time
+struct timespec start, end;
+uint64_t diff;
+
+// 1d array for row sums
+float row_sums[ROWS];
+
+// 1d array for thread time
+long long unsigned int thread_time[ROWS];
+
+int part = 0;
 pthread_mutex_t mutexBuffer;
 
 // data to be passes with each thread 
@@ -83,6 +93,9 @@ int bestRC(int n)
 // matrix, it will be called with a section of the matrix by each thread
 void* rowSum(void* args)
 {
+    
+    clock_gettime(CLOCK_THREAD_CPUTIME_ID, &start);
+    int thread_part = part++;
     thread_data *tdata=(thread_data *)args;
     int rstart = tdata->rstart;
     int cstart = tdata->cstart;
@@ -97,13 +110,26 @@ void* rowSum(void* args)
         for(int a = cstart; a < cstart+c; a++)
         {
             res = res + mat[a];
+            row_sums[thread_part] = res;
         }// end for
     }//end for
-    printf("\n%f\n", res);
+    printf("Thread %d Row Sum = %f\n",thread_part, res);
+    clock_gettime(CLOCK_THREAD_CPUTIME_ID, &end);
+    
+    // calculate difference in start and end times
+    diff = BILLION * (end.tv_sec - start.tv_sec) + end.tv_nsec - start.tv_nsec;
+    thread_time[thread_part] = diff;
+
+	printf("Thread %d time = %llu nanoseconds\n", thread_part, (long long unsigned int) diff);
+    printf("\n");
+    pthread_exit(NULL);
 }// end rowSum
 
 int main(int argc, char *argv[]) {
 
+    struct timespec s, e;
+    uint64_t difference;
+    clock_gettime(CLOCK_REALTIME, &s);
     // rows per thread
     int R;
     // columns per thread
@@ -117,7 +143,7 @@ int main(int argc, char *argv[]) {
     // V is the value every element in the array should be set to, default is random float
     // between 0 and 100
     srand(time(NULL));
-    float V = ((float)rand()/RAND_MAX)*(float)(100.0);
+    float V;
     // VFlag is a flag to determine if the user has set the value of V
     int VFlag = 0;
 
@@ -144,26 +170,19 @@ int main(int argc, char *argv[]) {
         C = R;
         R = temp;
     }
-    printf("%d\n", N);
-    printf("%d\n", C);
-    printf("%d\n", R);
-    printf("%d\n", DBL_MAX);
-    printf("here\n");
-    // 2d array for computations
-    //float matrix[N][N];
-    printf("here\n");
-    // 1d array for row sums
-    float row_sums[N];
 
     // 1d array for thread timings
     float thread_time[T];
-    printf("here\n");
+
     // initialize matrix
     for(int i = 0; i < N; i++)
     {
         for(int j = 0; j < N; j++)
         {
-            matrix[i][j] = V;
+            if(VFlag == 1)
+                matrix[i][j] = V;
+            else
+                matrix[i][j] = ((float)rand()/RAND_MAX)*(float)(100.0);
             //printf("%f\n", V);
             //printf("%f\n\n", matrix[i][j]);
         }// end for
@@ -172,7 +191,7 @@ int main(int argc, char *argv[]) {
     // threads
 	pthread_t th[T+1];
 	pthread_mutex_init(&mutexBuffer, NULL);
-    printf("here\n");
+
 	// create threads
 	for(int t = 1; t <= T; t++)
 	{
@@ -203,11 +222,28 @@ int main(int argc, char *argv[]) {
 			perror("error joining threads\n");
 		}
 	}// end for joining threads
-
-
-	// destroy threads and semaphores
+    
+    float total_sum = 0;
+    long long unsigned int total_time = 0;
+    // print row sums
+    for(int i = 0; i < T; i++)
+    {
+        total_sum += row_sums[i];
+        total_time += thread_time[i];
+    }// end for
+    
+    // print results
+    printf("Total Sum is %f\n", total_sum);
+    printf("Total Thread Time is %llu nanoseconds\n", (long long unsigned int) total_time);
+	
+    // destroy threads and semaphores
 	pthread_mutex_destroy(&mutexBuffer);
+    
+    clock_gettime(CLOCK_REALTIME, &e);
 
+    difference = BILLION * (e.tv_sec - s.tv_sec) + e.tv_nsec - s.tv_nsec;
+	printf("Total time = %llu nanoseconds\n", (long long unsigned int) difference);
+    printf("\n");
 	// end
 	printf("\nEnd of program\n");
 }
