@@ -1,0 +1,75 @@
+# This is the output for N = 4000, T = 1, and V = 1 (for easy calculation)
+doda@bach:~/Documents/CS474/Project 3/CS474-Project3> ./a.exe -s 4000 -t 1 -v 1
+Thread 0 Row Sum = 16000000.000000
+Thread 0 time = 41961087 nanoseconds
+
+Total Sum is 16000000.000000
+Wall Clock Time = 78893760 nanoseconds
+
+End of program
+
+
+# This is the output for N = 4000, T = 2, and V = 1 (for easy calculation)
+doda@bach:~/Documents/CS474/Project 3/CS474-Project3> ./a.exe -s 4000 -t 2 -v 1
+Thread 0 Row Sum = 8000000.000000
+Thread 0 time = 38305351 nanoseconds
+
+Thread 1 Row Sum = 8000000.000000
+Thread 1 time = 44297845 nanoseconds
+
+Total Sum is 16000000.000000
+Wall Clock Time = 85052980 nanoseconds
+
+End of program
+
+
+# This is the output for N = 4000, T = 4, and V = 1 (for easy calculation)
+doda@bach:~/Documents/CS474/Project 3/CS474-Project3> ./a.exe -s 4000 -t 4 -v 1
+Thread 3 Row Sum = 4000000.000000
+Thread 3 time = 35668103 nanoseconds
+
+Thread 2 Row Sum = 4000000.000000
+Thread 2 time = 54118008 nanoseconds
+
+Thread 1 Row Sum = 4000000.000000
+Thread 1 time = 57526889 nanoseconds
+
+Thread 0 Row Sum = 4000000.000000
+Thread 0 time = 59916305 nanoseconds
+
+Total Sum is 16000000.000000
+Wall Clock Time = 100015857 nanoseconds
+
+End of program
+
+
+# This is the output for N = 4000, T = 8, and V = 1 (for easy calculation)
+doda@bach:~/Documents/CS474/Project 3/CS474-Project3> ./a.exe -s 4000 -t 8 -v 1
+Thread 1 Row Sum = 2000000.000000
+Thread 1 time = 43903440 nanoseconds
+
+Thread 5 Row Sum = 2000000.000000
+Thread 5 time = 43789816 nanoseconds
+
+Thread 0 Row Sum = 2000000.000000
+Thread 0 time = 49967279 nanoseconds
+
+Thread 4 Row Sum = 2000000.000000
+Thread 4 time = 49975601 nanoseconds
+
+Thread 3 Row Sum = 2000000.000000
+Thread 3 time = 54508544 nanoseconds
+
+Thread 7 Row Sum = 2000000.000000
+Thread 7 time = 54442368 nanoseconds
+
+Thread 6 Row Sum = 2000000.000000
+Thread 6 time = 54580108 nanoseconds
+
+Thread 2 Row Sum = 2000000.000000
+Thread 2 time = 54596177 nanoseconds
+
+Total Sum is 16000000.000000
+Wall Clock Time = 94862490 nanoseconds
+
+End of program
