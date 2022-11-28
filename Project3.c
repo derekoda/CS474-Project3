@@ -39,9 +39,10 @@ uint64_t diff;
 float row_sums[ROWS];
 
 // 1d array for thread time
-long long unsigned int thread_time[ROWS];
+//long long unsigned int thread_time[ROWS];
 
 int part = 0;
+int timePart = 0;
 pthread_mutex_t mutexBuffer;
 
 // data to be passes with each thread 
@@ -96,6 +97,7 @@ void* rowSum(void* args)
     
     clock_gettime(CLOCK_THREAD_CPUTIME_ID, &start);
     int thread_part = part++;
+    int time_part = timePart++;
     thread_data *tdata=(thread_data *)args;
     int rstart = tdata->rstart;
     int cstart = tdata->cstart;
@@ -118,9 +120,8 @@ void* rowSum(void* args)
     
     // calculate difference in start and end times
     diff = BILLION * (end.tv_sec - start.tv_sec) + end.tv_nsec - start.tv_nsec;
-    thread_time[thread_part] = diff;
-
-	printf("Thread %d time = %llu nanoseconds\n", thread_part, (long long unsigned int) diff);
+    //thread_time[time_part] = (long long unsigned int) diff;
+    printf("Thread %d time = %llu nanoseconds\n", thread_part, (long long unsigned int) diff);
     printf("\n");
     pthread_exit(NULL);
 }// end rowSum
@@ -229,12 +230,12 @@ int main(int argc, char *argv[]) {
     for(int i = 0; i < T; i++)
     {
         total_sum += row_sums[i];
-        total_time += thread_time[i];
+        //total_time += thread_time[i];
     }// end for
     
     // print results
     printf("Total Sum is %f\n", total_sum);
-    printf("Total Thread Time is %llu nanoseconds\n", (long long unsigned int) total_time);
+    //printf("Total Thread Time is %llu nanoseconds\n", (long long unsigned int) total_time);
 	
     // destroy threads and semaphores
 	pthread_mutex_destroy(&mutexBuffer);
@@ -242,8 +243,7 @@ int main(int argc, char *argv[]) {
     clock_gettime(CLOCK_REALTIME, &e);
 
     difference = BILLION * (e.tv_sec - s.tv_sec) + e.tv_nsec - s.tv_nsec;
-	printf("Total time = %llu nanoseconds\n", (long long unsigned int) difference);
-    printf("\n");
+	printf("Wall Clock Time = %llu nanoseconds\n", (long long unsigned int) difference);
 	// end
 	printf("\nEnd of program\n");
 }
